@@ -1,0 +1,9 @@
+.panel-dark, .button-dark{
+    background-color: black;
+    color: white;
+}
+
+.panel-light, .button-light {
+    background-color: white;
+    color: black;
+}
