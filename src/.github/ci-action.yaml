@@ -22,13 +22,14 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          java-version: '11' # Ensure you're specifying Java version here
           cache: 'npm'
 
       - name: npm ci
         run: npm ci
 
       - name: npm run build
+        run: npm run build
 
   test-stage:
     runs-on: ubuntu-latest
@@ -48,7 +49,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up docker build action
       - name: Setup docker buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
@@ -56,32 +56,27 @@ jobs:
       - name: Login to dockerhub
         uses: docker/login-action@v2
         with:
-          username: ${ { secrets.DOCKER_USER } }
-          password: ${ { secrets.DOCKER_PASSWORD } }
+          username: ${{ secrets.DOCKER_USER }} # No spaces
+          password: ${{ secrets.DOCKER_PASSWORD }} # No spaces
 
       - name: Login to Github packages
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${ { github.actor } }
-          password: ${ { secrets.G_TOKEN } }
+          username: ${{ github.actor }} # No spaces
+          password: ${{ secrets.G_TOKEN }} # No spaces
 
       - name: Build image and push to Docker Hub and GitHub Container Registry
         uses: docker/build-push-action@v2
         with:
-          #relative path where the source code with Dockerfile is located
           context: ./
-
-          #tags has to be all lower case
-          tags:
-            /
-            amirtharajvel/experiment:${{github.sha}}
-            ghcr.io/amirtharajvel/experiment:${{github.sha}}
-            #build on feature branches, push only on main branch
-          push: ${{github.ref == 'refs/heads/main'}}
+          tags: |
+            amirtharajvel/experiment:${{ github.sha }}
+            ghcr.io/amirtharajvel/experiment:${{ github.sha }}
+          push: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Image Digest
-        run: echo ${{steps.docker_build.outputs.digest}}
+        run: echo ${{ steps.buildx.outputs.digest }}
 
   update-manifest-stage:
     runs-on: ubuntu-latest
@@ -91,17 +86,9 @@ jobs:
         with:
           repository: amirtharajvel/infra-gitops-2024-aug
           ref: 'main'
-          token: ${{secrets.G_TOKEN}}
+          token: ${{ secrets.G_TOKEN }}
 
       - name: Setup git config
         run: |
           git config --global user.email "amirtharaj@live.com"
-          git config --global user.name "amirtharajvel"
-
-          echo ${{github.sha}}
-          sed -i "s#${{github.actor}}.*#${{github.actor}}/experiment:${{github.sha}}#g" deployment.yaml
-          git add -A
-          git commit -am "Update image for -${{github.sha}}"
-
-      - run: echo ${{github}}
-      - run: git push origin main
+          git config --global user.name "amirtharajvel
