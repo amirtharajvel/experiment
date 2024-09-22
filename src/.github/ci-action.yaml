@@ -60,7 +60,7 @@ jobs:
           password: ${ { secrets.DOCKER_PASSWORD } }
 
       - name: Login to Github packages
-        user: docker/login-action@v2
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${ { github.actor } }
@@ -93,13 +93,13 @@ jobs:
           ref: 'main'
           token: ${{secrets.G_TOKEN}}
 
-      - name: setup git config
-        run: /
+      - name: Setup git config
+        run: |
           git config --global user.email "amirtharaj@live.com"
           git config --global user.name "amirtharajvel"
 
           echo ${{github.sha}}
-          sed -i "s#${{github.actor}}.*#{{github.actor}}/experiment:${{github.sha}}#g" deployment.yaml
+          sed -i "s#${{github.actor}}.*#${{github.actor}}/experiment:${{github.sha}}#g" deployment.yaml
           git add -A
           git commit -am "Update image for -${{github.sha}}"
 
