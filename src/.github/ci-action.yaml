@@ -78,25 +78,25 @@ jobs:
       - name: Image Digest
         run: echo ${{ steps.buildx.outputs.digest }}
 
-  update-manifest-stage:
-    runs-on: ubuntu-latest
-    needs: [build-and-push-docker-image]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: amirtharajvel/infra-gitops-2024-aug
-          ref: 'main'
-          token: ${{ secrets.G_TOKEN }}
+  # update-manifest-stage:
+  #   runs-on: ubuntu-latest
+  #   needs: [build-and-push-docker-image]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         repository: amirtharajvel/infra-gitops-2024-aug
+  #         ref: 'main'
+  #         token: ${{ secrets.G_TOKEN }}
 
-      - name: Setup git config
-        run: |
-          git config --global user.email "amirtharaj@live.com"
-          git config --global user.name "amirtharajvel"
+  #     - name: Setup git config
+  #       run: |
+  #         git config --global user.email "amirtharaj@live.com"
+  #         git config --global user.name "amirtharajvel"
 
-          echo ${{ github.sha }}
-          sed -i "s#${{ github.actor }}.*#${{ github.actor }}/experiment:${{ github.sha }}#g" deployment.yaml
-          git add -A
-          git commit -m "Update image for -${{ github.sha }}"
+  #         echo ${{ github.sha }}
+  #         sed -i "s#${{ github.actor }}.*#${{ github.actor }}/experiment:${{ github.sha }}#g" deployment.yaml
+  #         git add -A
+  #         git commit -m "Update image for -${{ github.sha }}"
 
-      - run: echo ${{ github }}
-      - run: git push origin main
+  #     - run: echo ${{ github }}
+  #     - run: git push origin main
